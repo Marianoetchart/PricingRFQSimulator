@@ -1,10 +1,15 @@
 import java.util.concurrent.BlockingQueue;
 import java.util.UUID;
+import java.util.logging.*; 
 
 public class RFQSimulator implements Runnable {
 
     private final BlockingQueue<String> queue;
     private final BlockingQueue<String> responseQueue;
+
+    private SingletonLogger slogger; 
+    private Logger logger;
+    
 
     @Override
     public void run (){
@@ -18,6 +23,10 @@ public class RFQSimulator implements Runnable {
 	}
 
     public RFQSimulator(BlockingQueue<String> q, BlockingQueue<String> rq){
+
+        slogger = new SingletonLogger();
+        this.logger = slogger.getLogger(); 
+
         this.queue = q;
         this.responseQueue = rq;
     }
@@ -41,6 +50,8 @@ public class RFQSimulator implements Runnable {
             UUID uniqueKey = UUID.randomUUID(); 
 
             String msg = "\nRFQ: " + uniqueKey.toString() + "\nQuantity: " + String.valueOf(quantity) + "\nDirection: " + direction + "\n";   
+
+            this.logger.info("Sending RFQ \n" + msg);
 
             this.queue.put(msg); 
 

@@ -1,12 +1,21 @@
 import java.util.concurrent.BlockingQueue;
+import java.util.logging.*; 
 
 class OrderBookSimulator implements Runnable {
 
     private double midPrice;
     private final BlockingQueue<String> queue;
     private final BlockingQueue<String> responseQueue;
+    
+    private SingletonLogger slogger; 
+    private Logger logger;
+    
 
     public OrderBookSimulator(BlockingQueue<String> q, BlockingQueue<String> rq){
+
+        slogger = new SingletonLogger();
+        this.logger = slogger.getLogger(); 
+
         this.queue = q;
         this.responseQueue = rq;
         this.midPrice = 2.40; // taken from Euro 10 yr Swap on 30/8/2022 close
@@ -20,6 +29,7 @@ class OrderBookSimulator implements Runnable {
             this.processRFQs();
             this.randomWalk();
             System.out.println("Mid Price: " + this.midPrice);
+            this.logger.info("Mid Price: " + this.midPrice + "\n") ; 
         }
 	}
 
@@ -40,6 +50,9 @@ class OrderBookSimulator implements Runnable {
         try{
             String value = this.queue.take();
             while (!value.equals("*")) {
+
+                this.logger.info("Recieving RFQ \n" + value);
+
                 System.out.println( value );
 
                 // retrieves RFQ identifier, then replies back to response queue the mid price
